@@ -1,0 +1,41 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+backend/venv/
+
+# Environment variables
+backend/.env
+
+# Django
+backend/db.sqlite3
+backend/**/*.log
+backend/staticfiles/
+
+# Node
+frontend/node_modules/
+frontend/build/
+frontend/.env.local
+
+# ML models and datasets (large files - use Git LFS if needed)
+models/*.pkl
+datasets/*.csv
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
