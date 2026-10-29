@@ -39,3 +39,13 @@ datasets/*.csv
 # OS
 .DS_Store
 Thumbs.db
+
+# Deployment secrets and virtual environments
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.venv/
+.venv/
+venv/
+node_modules/

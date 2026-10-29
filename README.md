@@ -68,10 +68,10 @@ cd frontend
 npm install
 
 # Start the React dev server
-npm start
+npm run dev
 ```
 
-The frontend will start at **http://localhost:3000** and connect to the backend automatically.
+The frontend will start at **http://localhost:5173/** and connect to the backend automatically.
 
 ### 3. Ollama Setup (for Chatbot & Fallback)
 

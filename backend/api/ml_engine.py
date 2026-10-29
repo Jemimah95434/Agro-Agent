@@ -3,7 +3,11 @@ import numpy as np
 import os
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL_PATH = os.path.join(BASE, '..', 'models')
+
+MODEL_PATH = os.getenv(
+    "MODEL_PATH",
+    os.path.join(BASE, "..", "models"),
+)
 
 crop_model  = joblib.load(os.path.join(MODEL_PATH, 'crop_model.pkl'))
 fert_model  = joblib.load(os.path.join(MODEL_PATH, 'fert_model.pkl'))
@@ -14,41 +18,25 @@ yield_model = joblib.load(os.path.join(MODEL_PATH, 'yield_model.pkl'))
 le_area     = joblib.load(os.path.join(MODEL_PATH, 'le_area.pkl'))
 le_item     = joblib.load(os.path.join(MODEL_PATH, 'le_item.pkl'))
 
-# Map crop model names → fertilizer dataset crop names
 CROP_TO_FERT = {
-    'rice': 'Paddy', 'maize': 'Maize', 'cotton': 'Cotton',
-    'sugarcane': 'Sugarcane', 'tobacco': 'Tobacco',
-    'wheat': 'Wheat', 'barley': 'Barley',
-    'millets': 'Millets', 'oilseeds': 'Oil seeds',
-    'pulses': 'Pulses', 'groundnuts': 'Ground Nuts'
+    "rice": "Paddy",
+    "maize": "Maize",
+    "cotton": "Cotton",
+    "sugarcane": "Sugarcane",
+    "tobacco": "Tobacco",
+    "wheat": "Wheat",
+    "barley": "Barley",
+    "millets": "Millets",
+    "oilseeds": "Oil seeds",
+    "pulses": "Pulses",
+    "groundnuts": "Ground Nuts",
 }
 
-# Map crop model names → yield_df Item names
 CROP_TO_YIELD = {
-    'rice': 'Rice, paddy',
-    'maize': 'Maize',
-    'wheat': 'Wheat',
-    'banana': 'Plantains and others',
-    'chickpea': 'Soybeans',
-    'lentil': 'Soybeans',
-    'kidneybeans': 'Soybeans',
-    'mungbean': 'Soybeans',
-    'blackgram': 'Soybeans',
-    'mothbeans': 'Soybeans',
-    'pigeonpeas': 'Soybeans',
-    'cotton': 'Soybeans',
-    'jute': 'Soybeans',
-    'coffee': 'Soybeans',
-    'muskmelon': 'Sweet potatoes',
-    'watermelon': 'Sweet potatoes',
-    'mango': 'Yams',
-    'grapes': 'Yams',
-    'apple': 'Yams',
-    'orange': 'Yams',
-    'papaya': 'Yams',
-    'coconut': 'Yams',
-    'pomegranate': 'Yams',
-    'sugarcane': 'Cassava',
+    "rice": "Rice, paddy",
+    "maize": "Maize",
+    "wheat": "Wheat",
+    "banana": "Plantains and others",
 }
 
 def predict_crop(data):
@@ -71,20 +59,43 @@ def predict_crop(data):
     return top_crop, confidence, suitability
 
 def predict_fertilizer(data, crop_name):
-    soil_enc = le_soil.transform([data['soil_type']])[0]
+    soil_type = str(data["soil_type"]).strip()
+    crop_key = str(crop_name).strip().lower()
 
-    mapped_crop = CROP_TO_FERT.get(crop_name.lower(), crop_name.capitalize())
+    mapped_crop = CROP_TO_FERT.get(crop_key)
+
+    if mapped_crop is None:
+        raise ValueError(
+            f"Fertilizer model does not support the recommended crop "
+            f"'{crop_name}'. Supported crop categories are: "
+            f"{', '.join(CROP_TO_FERT.keys())}."
+        )
+
+    if soil_type not in le_soil.classes_:
+        raise ValueError(f"Unsupported soil type: {soil_type}")
+
     if mapped_crop not in le_crop.classes_:
-        mapped_crop = le_crop.classes_[0]  # Use first available crop if not found
+        raise ValueError(
+            f"Fertilizer dataset does not contain crop category "
+            f"'{mapped_crop}'."
+        )
 
-    crop_enc = le_crop.transform([mapped_crop])[0]
+    soil_enc = int(le_soil.transform([soil_type])[0])
+    crop_enc = int(le_crop.transform([mapped_crop])[0])
+
     features = [[
-        float(data['temperature']), float(data['humidity']),
-        float(data['moisture']), soil_enc, crop_enc,
-        float(data['N']), float(data['K']), float(data['P'])
+        float(data["temperature"]),
+        float(data["humidity"]),
+        float(data["moisture"]),
+        soil_enc,
+        crop_enc,
+        float(data["N"]),
+        float(data["K"]),
+        float(data["P"]),
     ]]
-    fert_enc = fert_model.predict(features)[0]
-    return le_fert.inverse_transform([fert_enc])[0]
+
+    prediction = int(fert_model.predict(features)[0])
+    return str(le_fert.inverse_transform([prediction])[0])
 
 def predict_yield(area, item, year, rainfall, pesticides, temp):
     mapped_item = CROP_TO_YIELD.get(item.lower(), 'Maize')

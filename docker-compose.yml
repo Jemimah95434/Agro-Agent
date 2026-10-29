@@ -1,0 +1,31 @@
+﻿services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DJANGO_DEBUG: "false"
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,backend
+      DJANGO_DB_PATH: /app/data/db.sqlite3
+      MODEL_PATH: /models
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      OLLAMA_URL: http://host.docker.internal:11434/api/generate
+    volumes:
+      - agroagent_data:/app/data
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  agroagent_data:
