@@ -13,7 +13,6 @@ RUN pip install --no-cache-dir -r requirements.txt && pip install --no-cache-dir
 
 COPY backend/ /app/
 COPY models/ /models/
-COPY datasets/ /datasets/
 
 ENV MODEL_PATH=/models
 
