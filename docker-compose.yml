@@ -13,8 +13,8 @@
       OLLAMA_URL: http://host.docker.internal:11434/api/generate
     volumes:
       - agroagent_data:/app/data
-    expose:
-      - "8000"
+    ports:
+      - "8000:10000"
     restart: unless-stopped
 
   frontend:

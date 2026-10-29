@@ -1,4 +1,3 @@
-```python
 import os
 
 import requests
@@ -201,4 +200,3 @@ Question: {message}
         "I am unable to answer right now. Please try again later "
         "or consult your local agricultural officer."
     )
-```

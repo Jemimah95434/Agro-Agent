@@ -5,8 +5,9 @@
 </p>
 
 <p align="center">
-  <strong>Smart agriculture decision support for crop, fertilizer, and yield planning</strong><br />
-  ML predictions · Gemini/Ollama AI guidance · English &amp; Tamil · Docker &amp; Render ready
+  <strong>Smart agriculture decision support for crop and fertilizer guidance</strong><br />
+  ML predictions · Ollama/Qwen AI guidance · English &amp; Tamil · Docker &amp; Render ready
+
 </p>
 
 <p align="center">
@@ -19,7 +20,9 @@
   <img alt="Git LFS" src="https://img.shields.io/badge/Git%20LFS-models-F05032?logo=git&logoColor=white" />
 </p>
 
-Agro-Agent is an AI-powered agricultural advisory platform that helps farmers and students make data-driven decisions. It combines trained machine-learning models with generative AI to recommend a suitable crop, suggest fertilizer, estimate yield, explain the recommendation, and answer farming questions in **English** and **Tamil**.
+Agro-Agent is an AI-powered agricultural advisory platform that helps farmers and students make data-driven decisions. It combines trained machine-learning models with generative AI to recommend a suitable crop, identify a fertilizer category for a selected crop, explain the results, and answer farming questions in **English** and **Tamil**.
+
+The crop and fertilizer advisors are separate workflows. The fertilizer result is a category only: the bundled data does not support dosage or application-timing advice. Yield is shown as historical dataset records, not as a farm-level forecast. See [ML Models and Limitations](#-ml-models-and-limitations) before using results in the field.
 
 ## 📚 Table of Contents
 
@@ -32,19 +35,18 @@ Agro-Agent is an AI-powered agricultural advisory platform that helps farmers an
 - [📁 Project Structure](#-project-structure)
 - [🐳 Docker Deployment](#-docker-deployment)
 - [☁️ Render Deployment](#-render-deployment)
-- [📦 ML Models and Git LFS](#-ml-models-and-git-lfs)
+- [📦 ML Models and Limitations](#-ml-models-and-limitations)
 - [🛠️ Troubleshooting](#-troubleshooting)
 - [🤝 Contributing](#-contributing)
 
 ## ✨ Key Features
 
 - 🌾 **Crop Recommendation** — Predicts the most suitable crop from N, P, K, pH, temperature, humidity, and rainfall using a trained classifier.
-- 🧪 **Fertilizer Prediction** — Suggests an appropriate fertilizer based on soil type, crop, moisture, temperature, humidity, and nutrient levels.
-- 📈 **Yield Estimation** — Forecasts expected yield in hg/ha from area, crop, year, rainfall, pesticide usage, and temperature.
-- 🤖 **AI Prescription** — Generates detailed, explainable farming guidance using Google Gemini 2.0 Flash, with Ollama/Qwen fallback.
+- 🧪 **Fertilizer Advisor** — For a selected crop, returns a fertilizer category from soil type, moisture, temperature, humidity, and NPK values. It does not return dosage or timing.
+- 📈 **Yield Insights** — Shows historical yield records from `yield_df.csv` for a crop, area, and year range. These are dataset records, not forecasts.
+- 🤖 **AI Crop Explanation** — Generates explainable farming guidance for the crop recommendation through Ollama/Qwen. An optional Gemini helper exists in `genai_agent.py` but is not wired into the REST views.
 - 💬 **AI Chatbot** — Answers practical farming questions through an in-app assistant.
 - 🌐 **Bilingual UI** — Full English and Tamil interface with translated recommendations and AI responses.
-- 📊 **Historical Yield Trends** — Visualizes historical yield records from `yield_df.csv` by crop, area, and year range.
 - 📱 **Responsive Dashboard** — Desktop sidebar and mobile-friendly layout with a modern green agriculture theme.
 - 🐳 **Deployment Ready** — Includes Docker, Docker Compose, Nginx, Gunicorn, and Render port configuration.
 
@@ -55,7 +57,7 @@ Agro-Agent is an AI-powered agricultural advisory platform that helps farmers an
 | Frontend | React 19, Vite 8, custom responsive CSS, Fetch API |
 | Backend | Django 5.2, Django REST Framework, CORS, Gunicorn |
 | Machine Learning | Scikit-learn, XGBoost, pandas, NumPy, Joblib |
-| Generative AI | Google Gemini 2.0 Flash, Ollama (Qwen) |
+| Generative AI | Ollama (Qwen); optional Gemini helper not used by the current API views |
 | Database | SQLite |
 | Deployment | Docker, Docker Compose, Nginx, Render |
 | Model Storage | Git LFS for trained `.pkl` model files |
@@ -67,7 +69,6 @@ flowchart LR
     U[Farmer / Browser] --> F[React + Vite Frontend]
     F -->|REST /api| B[Django + DRF Backend]
     B --> M[ML Models<br/>scikit-learn / XGBoost]
-    B --> G[Google Gemini 2.0 Flash]
     B --> O[Ollama Qwen]
     B --> D[(SQLite)]
     B --> Y[yield_df.csv]
@@ -80,7 +81,7 @@ flowchart LR
 
 - Python 3.10+
 - Node.js 18+ and npm
-- Ollama installed and running locally (for chatbot and AI fallback features)
+- Ollama installed and running locally (for crop explanations and the chatbot)
 - Git LFS (for cloning trained model files)
 
 ### 1. Backend Setup
@@ -151,11 +152,12 @@ DJANGO_DEBUG=True
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
 ```
 
-- **GEMINI_API_KEY** — Get from [Google AI Studio](https://aistudio.google.com/)
+- **GEMINI_API_KEY** — Optional. Used only by the standalone `genai_agent.py` helper, not by the current REST views.
 - **DJANGO_SECRET_KEY** — Use a long random value in production
 - **DJANGO_DEBUG** — Set to `false` in production
 - **DJANGO_ALLOWED_HOSTS** — Comma-separated hostnames for deployment
 - **OLLAMA_URL** — Optional override for the Ollama endpoint
+- **OLLAMA_MODEL** — Optional Ollama model name; defaults to `qwen:latest` in the API views
 - **MODEL_PATH** — Optional override for the directory containing `.pkl` models
 - **DJANGO_DB_PATH** — Optional SQLite database path
 
@@ -169,11 +171,13 @@ Base URL: `http://localhost:8000/api/`
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/recommend/` | Crop, fertilizer, yield, confidence, suitability, and AI prescription |
+| POST | `/api/crop/` | Crop recommendation, confidence, suitability, warnings, and AI explanation |
+| POST | `/api/fertilizer/` | Fertilizer category for a selected crop; `supported: false` for unsupported crops |
+| POST | `/api/recommend/` | Legacy combined endpoint retained for existing clients |
 | POST | `/api/chat/` | Agricultural chatbot response |
 | GET | `/api/yield_trend/` | Historical yield records for a crop |
 
-### Example: Recommendation Request
+### Example: Crop Recommendation Request
 
 ```json
 {
@@ -184,15 +188,29 @@ Base URL: `http://localhost:8000/api/`
   "humidity": 75,
   "ph": 6.5,
   "rainfall": 180,
-  "moisture": 40,
-  "soil_type": "Loamy",
-  "area": "India",
-  "year": 2013,
-  "pesticides": 12,
-  "crop": "rice",
   "language": "en"
 }
 ```
+
+The response contains `crop`, `confidence`, `suitability`, `explanation`, `warnings`, `fertilizer_supported`, and `caveat`. It does not contain fertilizer or yield predictions.
+
+### Example: Fertilizer Advisor Request
+
+```json
+{
+  "crop": "rice",
+  "N": 20,
+  "P": 20,
+  "K": 10,
+  "temperature": 30,
+  "humidity": 60,
+  "moisture": 40,
+  "soil_type": "Loamy",
+  "language": "en"
+}
+```
+
+The response contains `fertilizer`, `confidence`, `crop_category`, `guidance`, `limitations`, `warnings`, and `data_quality`. It does not contain a dosage or application schedule. For an unsupported crop such as banana, the endpoint returns `supported: false`, `fertilizer: null`, and an explanatory message instead of a misleading prediction.
 
 ### Example: Chat Request
 
@@ -261,7 +279,6 @@ The repository includes a full Docker Compose setup with a Django/Gunicorn backe
 From the repository root:
 
 ```bash
-export GEMINI_API_KEY=your_gemini_api_key_here
 export DJANGO_SECRET_KEY=your_django_secret_key_here
 docker compose up --build
 ```
@@ -291,14 +308,14 @@ Recommended Render settings:
 - Runtime: Docker
 - Dockerfile path: `backend/Dockerfile`
 - Build context: repository root
-- Environment variables: `GEMINI_API_KEY`, `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS=your-render-hostname`
+- Environment variables: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS=your-render-hostname`, and optionally `OLLAMA_URL`/`OLLAMA_MODEL` if your deployment can reach Ollama
 - Persistent disk or managed database if you need durable SQLite storage
 
 The frontend can be deployed as a static site from `frontend/dist` or as the included frontend Docker image.
 
 ---
 
-## 📦 ML Models and Git LFS
+## 📦 ML Models and Limitations
 
 Trained models are stored with Git LFS:
 
@@ -314,18 +331,28 @@ Model files:
 | File | Purpose |
 |------|---------|
 | `crop_model.pkl` | Crop recommendation classifier |
-| `fert_model.pkl` | Fertilizer prediction model |
-| `yield_model.pkl` | Yield prediction model |
+| `fert_model.pkl` | Fertilizer category model |
+| `yield_model.pkl` | Historical yield regressor |
 | `le_*.pkl` | Label encoders for soil, crop, fertilizer, area, and item |
 
 If models are missing, check `MODEL_PATH` and ensure Git LFS files were downloaded.
+
+### Dataset and evaluation caveats
+
+These caveats are based on the bundled files and the updated training notebook:
+
+- **Crop data** — `Crop_recommendation.csv` has 2,200 rows, exactly 100 per class, with no duplicates or missing values. The environmental values are unique per row, which suggests synthetic benchmark data. Test accuracy and 5-fold CV are both about 99.55%. Treat this as a benchmark result, not proof of field accuracy.
+- **Fertilizer data** — `Fertilizer Prediction.csv` has 198 raw rows and 99 duplicates. The label `10/26/2026` appears on 14 rows and is almost certainly an Excel conversion of the fertilizer grade `10-26-26`; the notebook excludes it. After removing it and duplicates, only 92 unique rows remain for 6 classes. Every one of the 75 distinct NPK combinations has a single fertilizer label, so NPK values largely determine the target. The model identifies a matching fertilizer grade; it does not validate an agronomic prescription. No dosage or timing is available.
+- **Yield data** — `yield_df.csv` has 28,242 rows, 2,310 exact duplicates, and 15,112 repeated `Area + Item + Year` keys. The many-to-many merge produces cases such as India / Rice, paddy / 2013 where one yield value is paired with 19 different temperatures. A random split gives R² ≈ 0.986, but a deduplicated random split gives ≈ 0.966, an unseen `Area + Item` series split gives ≈ 0.687, and an unseen-country split gives ≈ 0.389. The data is country/area-year level, not farm level, and the model cannot extrapolate beyond 1990–2013. The dashboard therefore shows historical records, not a yield forecast.
+
+Use the updated `ml_notebooks/train_models.ipynb` to reproduce the deduplication, cross-validation, group split, and time split before retraining or deploying new model files.
 
 ---
 
 ## 🛠️ Troubleshooting
 
 - **Model loading errors:** Verify that all `.pkl` files exist and that `MODEL_PATH` points to the `models/` directory.
-- **Gemini errors:** Confirm `GEMINI_API_KEY` is valid. The app falls back to Ollama when Gemini is unavailable.
+- **AI errors:** Confirm Ollama is running and the configured `OLLAMA_MODEL` has been pulled. The current REST views use Ollama; `GEMINI_API_KEY` is only needed if you wire the standalone Gemini helper into the views.
 - **Ollama errors:** Ensure Ollama is running and that the `qwen` model has been pulled.
 - **CORS errors in development:** Run the Django backend on port `8000` and the Vite frontend on port `5173`.
 - **Docker Ollama access:** On Linux, `host.docker.internal` may require additional Docker configuration.
