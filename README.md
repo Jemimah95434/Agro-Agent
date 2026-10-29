@@ -373,3 +373,11 @@ Please keep changes focused, document new environment variables, and update this
 ---
 
 <p align="center">Built for smarter, data-driven farming 🌾</p>
+
+## 📸 Application Screenshots
+
+![Golden hour farm](frontend/src/assets/images/farm-golden-hour.png)
+
+![Crop recommendation screen](frontend/src/assets/images/app-screenshot-1.png)
+
+![Fertilizer guidance screen](frontend/src/assets/images/app-screenshot-2.png)
