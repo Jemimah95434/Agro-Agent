@@ -17,6 +17,5 @@ COPY datasets/ /datasets/
 
 ENV MODEL_PATH=/models
 
-EXPOSE 8000
-
-CMD ["gunicorn", "agro_backend.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "1", "--timeout", "180"]
+EXPOSE 10000
+CMD ["sh", "-c", "gunicorn agro_backend.wsgi:application --bind 0.0.0.0:${PORT:-10000} --workers 1 --timeout 180"]
