@@ -406,9 +406,19 @@ button:disabled {
   margin-bottom: 24px;
   overflow: hidden;
   border-radius: 20px;
-  background: radial-gradient(ellipse at 75% 50%, #326b45, transparent 47%), #204b34;
+  background: #204b34;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: white;
   box-shadow: 0 12px 35px #163e2910;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #102a1d99, #1e4a3366);
+  z-index: 1;
 }
 
 .hero-copy {
@@ -1985,7 +1995,7 @@ button:disabled {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 150px;
+  max-height: 220px;
   object-fit: cover;
 }
 
@@ -2112,12 +2122,19 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
-  .farm-banner,
-  .gallery-grid img {
-    height: 170px;
+  .page-banner img {
+    max-height: 160px;
+  }
+
+  .hero {
+    min-height: 240px;
+  }
+
+  .hero-copy {
+    width: 100%;
+    padding: 24px;
   }
 }
-
 .fertilizer-selection {
   display: grid;
   gap: 14px;

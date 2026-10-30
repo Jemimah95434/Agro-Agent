@@ -1489,7 +1489,11 @@ useEffect(() => {
 
   function Hero() {
     return (
-      <section className="hero">
+      <section
+        className="hero"
+        style={{ backgroundImage: `url(${dashboardImage})` }}
+      >
+        <div className="hero-overlay" aria-hidden="true" />
         <div className="hero-copy">
           <span className="hero-tag">
             <span className="live-dot" />
@@ -1510,14 +1514,6 @@ useEffect(() => {
             <Icon name="arrow" size={18} />
           </button>
         </div>
-        <figure className="hero-image-figure">
-          <img
-            className="hero-image"
-            src={dashboardImage}
-            alt="AgroAgent dashboard overview"
-            loading="lazy"
-          />
-        </figure>
       </section>
     );
   }
@@ -1589,16 +1585,6 @@ useEffect(() => {
     return (
       <>
         <Hero />
-
-        <figure className="farm-banner-figure">
-          <img
-            className="farm-banner dashboard-image"
-            src={dashboardImage}
-            alt="AgroAgent dashboard overview"
-            loading="lazy"
-          />
-          <figcaption>Field-ready insights for crop and fertilizer planning</figcaption>
-        </figure>
 
         <div className="metric-grid">
           <Metric
