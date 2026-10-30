@@ -1972,6 +1972,23 @@ button:disabled {
 }
 .surface.fertilizer-advisor { margin-top: 18px; }
 
+.page-banner {
+  margin: 0 0 18px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.page-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 190px;
+  object-fit: cover;
+}
+
 .fade-in {
   animation: agroFadeIn .45s ease both;
 }

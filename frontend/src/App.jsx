@@ -1781,6 +1781,14 @@ useEffect(() => {
           description={t("cropDescription")}
         />
 
+        <figure className="page-banner">
+          <img
+            src={farmGoldenHour}
+            alt="Green crop field ready for recommendation"
+            loading="lazy"
+          />
+        </figure>
+
         <div className="form-layout">
           <section className="surface form-card">
             <CropForm
@@ -1880,6 +1888,14 @@ useEffect(() => {
           title={t("fertilizerHeading")}
           description={t("fertilizerDescription")}
         />
+
+        <figure className="page-banner">
+          <img
+            src={appScreenshotTwo}
+            alt="Fertilizer guidance screen"
+            loading="lazy"
+          />
+        </figure>
 
         <div className="form-layout">
           <section className="surface form-card">
