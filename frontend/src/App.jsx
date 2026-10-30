@@ -1510,22 +1510,14 @@ useEffect(() => {
             <Icon name="arrow" size={18} />
           </button>
         </div>
-        <div className="hero-art" aria-hidden="true">
-          <div className="hero-sun" />
-          <div className="hero-orbit orbit-a" />
-          <div className="hero-orbit orbit-b" />
-          <div className="hero-plant">
-            <b />
-            <i />
-            <i />
-            <i />
-          </div>
-          <div className="hero-art-caption">
-            <Icon name="activity" size={18} />
-            <span>Soil · Crops · Insights</span>
-          </div>
-          <span className="hero-art-footer">GROW WITH BETTER INSIGHTS</span>
-        </div>
+        <figure className="hero-image-figure">
+          <img
+            className="hero-image"
+            src={dashboardImage}
+            alt="AgroAgent dashboard overview"
+            loading="lazy"
+          />
+        </figure>
       </section>
     );
   }
@@ -2006,7 +1998,6 @@ useEffect(() => {
                 {t("assistantOnline")}
               </small>
             </div>
-            <span className="ai-pill">QWEN · OLLAMA</span>
           </div>
 
           <div className="chat-messages" aria-live="polite">
@@ -2170,7 +2161,6 @@ function renderCurrentPage() {
 
           <footer className="app-footer">
             <span>{t("footer")}</span>
-            <span>Soil data · ML models · AI assistance</span>
           </footer>
         </div>
       </main>

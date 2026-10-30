@@ -1985,11 +1985,31 @@ button:disabled {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 190px;
+  max-height: 150px;
   object-fit: cover;
 }
 
 .page-banner img.dashboard-image {
+  object-fit: contain;
+  background: #f7f9f5;
+}
+
+.hero-image-figure {
+  width: 36%;
+  align-self: center;
+  margin: 0 24px 0 auto;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid #ffffff33;
+  background: #ffffff;
+  box-shadow: 0 12px 35px #163e2930;
+}
+
+.hero-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 240px;
   object-fit: contain;
   background: #f7f9f5;
 }
