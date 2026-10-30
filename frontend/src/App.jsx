@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import farmGoldenHour from "./assets/images/farm-golden-hour.png";
-import appScreenshotOne from "./assets/images/app-screenshot-1.png";
 import appScreenshotTwo from "./assets/images/app-screenshot-2.png";
 const API = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "");
 
@@ -1597,36 +1596,15 @@ useEffect(() => {
       <>
         <Hero />
 
-        <section className="overview-gallery" aria-label="AgroAgent previews">
-          <figure>
-            <img
-              className="farm-banner"
-              src={farmGoldenHour}
-              alt="Golden hour over green agricultural fields"
-              loading="lazy"
-            />
-            <figcaption>Field-ready insights for crop and fertilizer planning</figcaption>
-          </figure>
-
-          <div className="gallery-grid">
-            <figure>
-              <img
-                src={appScreenshotOne}
-                alt="AgroAgent crop recommendation screen"
-                loading="lazy"
-              />
-              <figcaption>Crop recommendation</figcaption>
-            </figure>
-            <figure>
-              <img
-                src={appScreenshotTwo}
-                alt="AgroAgent fertilizer guidance screen"
-                loading="lazy"
-              />
-              <figcaption>Fertilizer guidance</figcaption>
-            </figure>
-          </div>
-        </section>
+        <figure className="farm-banner-figure">
+          <img
+            className="farm-banner"
+            src={farmGoldenHour}
+            alt="Golden hour over green agricultural fields"
+            loading="lazy"
+          />
+          <figcaption>Field-ready insights for crop and fertilizer planning</figcaption>
+        </figure>
 
         <div className="metric-grid">
           <Metric

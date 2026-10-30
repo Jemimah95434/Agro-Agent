@@ -2031,6 +2031,22 @@ button:disabled {
   background: #f7f9f5;
 }
 
+.farm-banner-figure {
+  margin: 0 0 18px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.farm-banner-figure figcaption {
+  padding: 10px 14px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .farm-banner {
   height: auto;
   max-height: 200px;
