@@ -4,6 +4,7 @@ import math
 import os
 import re
 from pathlib import Path
+from .genai_agent import get_chat_reply
 
 import pandas as pd
 import requests
@@ -739,8 +740,10 @@ def recommend(request):
         )
 
 
+
 @api_view(["POST"])
 def chat(request):
+    """Answer farmer questions using Qwen first and Gemini as fallback."""
     message = str(request.data.get("message", "")).strip()
 
     if not message:
@@ -748,30 +751,37 @@ def chat(request):
             "Please enter a question before sending it."
         )
 
-    prompt = f"""
-You are AgroAgent, a helpful agricultural assistant.
-Answer the farmer's question clearly and practically.
-Do not claim certainty when information is insufficient.
-Do not invent fertilizer dosage or application schedules.
-Question: {message}
-"""
-
     try:
+        reply = get_chat_reply(message)
+
+        if not reply or not str(reply).strip():
+            return friendly_error(
+                "The agricultural assistant could not generate a response.",
+                ["Please try asking your question again."],
+                status=502,
+            )
+
+        if str(reply).startswith(
+            "The agricultural assistant is temporarily unavailable."
+        ):
+            return friendly_error(
+                str(reply),
+                ["Please try again later."],
+                status=502,
+            )
+
         return Response({
-            "reply": call_ollama(prompt),
+            "success": True,
+            "reply": str(reply).strip(),
         })
 
-    except requests.RequestException:
+    except Exception:
         return friendly_error(
             "The agricultural assistant is temporarily unavailable.",
-            ["Check that Ollama is running and try again."],
-            status=502,
-        )
-
-    except ValueError:
-        return friendly_error(
-            "The assistant could not generate a response.",
-            ["Please try asking your question again."],
+            [
+                "Please try again later.",
+                "If the problem continues, check the backend logs.",
+            ],
             status=502,
         )
 

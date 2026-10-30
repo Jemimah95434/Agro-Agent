@@ -83,7 +83,7 @@ Your response must:
     if client is not None:
         try:
             response = client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-3.5-flash",
                 contents=prompt,
             )
 
@@ -139,8 +139,7 @@ Your response must:
 
 
 AI_PROVIDER = os.getenv("AI_PROVIDER", "ollama").strip().lower()
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
-
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
 
 def get_chat_reply(message):
     """Answer a farmer question using the configured AI provider."""
