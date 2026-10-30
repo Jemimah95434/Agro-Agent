@@ -137,43 +137,60 @@ Your response must:
     )
 
 
+
+AI_PROVIDER = os.getenv("AI_PROVIDER", "ollama").strip().lower()
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+
+
 def get_chat_reply(message):
-    """Generate an agricultural chat response using Gemini."""
+    """Answer a farmer question using the configured AI provider."""
 
     prompt = f"""
 You are Agro-Agent, an AI agricultural assistant for Indian farmers
 and students.
 
-Answer the user's question clearly and helpfully in 3-5 sentences.
-- Give relevant, practical advice about crops, soil, weather, pests,
-  fertilizers, and yield.
-- For crop recommendations, explain the reasoning where possible.
-- For farming practices, provide clear step-by-step guidance.
-- For market prices, government schemes, or weather, explain that
-  current information should be verified through official sources.
-- Do not invent facts, prices, schemes, or weather conditions.
-- If you are unsure, say so politely and suggest consulting a
-  local agricultural officer.
+Answer clearly and helpfully in 3-5 sentences.
+- Give practical advice about crops, soil, pests, fertilizers, and yield.
+- Explain crop recommendations using the available information.
+- Do not invent current weather, market prices, or government schemes.
+- Do not invent fertilizer dosage or application schedules.
+- If uncertain, say so politely and suggest consulting a local
+  agricultural officer.
 
 Question: {message}
 """
 
-    if client is not None:
+    unavailable_reply = (
+        "The agricultural assistant is temporarily unavailable. "
+        "Please try again later or consult your local agricultural officer."
+    )
+
+    # Gemini-only mode: do not attempt to connect to local Ollama.
+    if AI_PROVIDER == "gemini":
+        if client is None:
+            print("Gemini is not configured; GEMINI_API_KEY is missing.")
+            return unavailable_reply
+
         try:
             response = client.models.generate_content(
-                model="gemini-2.0-flash",
+                model=GEMINI_MODEL,
                 contents=prompt,
             )
 
             generated_text = (response.text or "").strip()
 
             if generated_text:
+                print("Agro-Agent response provider: Gemini")
                 return generated_text
 
-        except Exception as gemini_error:
-            print(f"Gemini chat request failed: {gemini_error}")
+            print("Gemini returned an empty response.")
 
-    # Use Ollama if Gemini is unavailable
+        except Exception as gemini_error:
+            print(f"Gemini request failed: {gemini_error}")
+
+        return unavailable_reply
+
+    # Default mode: try local Ollama/Qwen first.
     try:
         ollama_response = requests.post(
             OLLAMA_URL,
@@ -191,12 +208,31 @@ Question: {message}
         )
 
         if generated_text:
+            print("Agro-Agent response provider: Ollama/Qwen")
             return generated_text
 
-    except Exception as ollama_error:
-        print(f"Ollama chat request failed: {ollama_error}")
+        print("Ollama returned an empty response.")
 
-    return (
-        "I am unable to answer right now. Please try again later "
-        "or consult your local agricultural officer."
-    )
+    except Exception as ollama_error:
+        print(f"Ollama failed; trying Gemini fallback: {ollama_error}")
+
+    # Fall back to Gemini when it is configured.
+    if client is not None:
+        try:
+            response = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt,
+            )
+
+            generated_text = (response.text or "").strip()
+
+            if generated_text:
+                print("Agro-Agent response provider: Gemini fallback")
+                return generated_text
+
+            print("Gemini returned an empty response.")
+
+        except Exception as gemini_error:
+            print(f"Gemini fallback failed: {gemini_error}")
+
+    return unavailable_reply
