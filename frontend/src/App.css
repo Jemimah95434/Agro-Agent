@@ -1989,6 +1989,11 @@ button:disabled {
   object-fit: cover;
 }
 
+.page-banner img.dashboard-image {
+  object-fit: contain;
+  background: #f7f9f5;
+}
+
 .fade-in {
   animation: agroFadeIn .45s ease both;
 }

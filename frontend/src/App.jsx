@@ -2,7 +2,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./App.css";
 import farmGoldenHour from "./assets/images/farm-golden-hour.png";
-import appScreenshotTwo from "./assets/images/app-screenshot-2.png";
+import cropImage from "./assets/images/crop-image.jpg";
+import fertilizerImage from "./assets/images/fertilizer-image.jpg";
+import dashboardImage from "./assets/images/dashboard-image.jpg";
 const API = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "");
 
 const INITIAL_FARM = {
@@ -1598,9 +1600,9 @@ useEffect(() => {
 
         <figure className="farm-banner-figure">
           <img
-            className="farm-banner"
-            src={farmGoldenHour}
-            alt="Golden hour over green agricultural fields"
+            className="farm-banner dashboard-image"
+            src={dashboardImage}
+            alt="AgroAgent dashboard overview"
             loading="lazy"
           />
           <figcaption>Field-ready insights for crop and fertilizer planning</figcaption>
@@ -1761,8 +1763,8 @@ useEffect(() => {
 
         <figure className="page-banner">
           <img
-            src={farmGoldenHour}
-            alt="Green crop field ready for recommendation"
+            src={cropImage}
+            alt="Crop recommendation"
             loading="lazy"
           />
         </figure>
@@ -1869,8 +1871,8 @@ useEffect(() => {
 
         <figure className="page-banner">
           <img
-            src={appScreenshotTwo}
-            alt="Fertilizer guidance screen"
+            src={fertilizerImage}
+            alt="Fertilizer recommendation"
             loading="lazy"
           />
         </figure>
