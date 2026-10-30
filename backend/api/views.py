@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 import requests
+from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -959,3 +960,10 @@ def yield_trend(request):
             ["Check that yield_df.csv is valid and accessible."],
             status=500,
         )
+
+
+def health(request):
+    return JsonResponse({
+        "status": "ok",
+        "service": "agro-agent-api",
+    })

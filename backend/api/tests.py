@@ -157,3 +157,12 @@ class HistoricalYieldTests(TestCase):
     def test_yield_model_rejects_unsupported_crop(self):
         with self.assertRaises(ValueError):
             predict_yield("India", "jute", 2013, 100, 10, 25)
+
+
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class HealthCheckTests(TestCase):
+    def test_health_endpoint_returns_ok(self):
+        response = self.client.get("/api/health/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "ok")

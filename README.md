@@ -1,7 +1,7 @@
 ﻿# 🌱 Agro-Agent
 
 <p align="center">
-  <img src="frontend/src/assets/hero.png" alt="AgroAgent smart agriculture dashboard" width="920" />
+  <img src="frontend/src/assets/hero.png" alt="AgroAgent smart agriculture dashboard" width="343" />
 </p>
 
 <p align="center">
@@ -308,7 +308,8 @@ Recommended Render settings:
 - Runtime: Docker
 - Dockerfile path: `backend/Dockerfile`
 - Build context: repository root
-- Environment variables: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS=your-render-hostname`, and optionally `OLLAMA_URL`/`OLLAMA_MODEL` if your deployment can reach Ollama
+- Environment variables: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS=your-render-hostname`, `DJANGO_CORS_ALLOWED_ORIGINS=https://your-frontend.onrender.com`, `DJANGO_CSRF_TRUSTED_ORIGINS=https://your-frontend.onrender.com`, and optionally `OLLAMA_URL`/`OLLAMA_MODEL` if your deployment can reach Ollama
+- Health check path: `/api/health/`
 - Persistent disk or managed database if you need durable SQLite storage
 
 The frontend can be deployed as a static site from `frontend/dist` or as the included frontend Docker image.
